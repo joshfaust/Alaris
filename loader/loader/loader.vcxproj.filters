@@ -40,7 +40,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Encryption.rc">
+    <ResourceCompile Include="loader.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

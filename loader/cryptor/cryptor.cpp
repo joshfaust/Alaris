@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
     AES_CBC_encrypt_buffer(&e_ctx, plaintext.data(), plaintext.size());             // Encrypt the plaintext data
     std::copy(plaintext.begin(), plaintext.end(), std::back_inserter(ciphertext));  // Load the ciphertext into the ciphertext vector.
 
-    std::cout << "[i] Replace shellcode string in loader with one below:\n" << std::endl;
     // ENCODE
     base64 b64 = base64();
     std::string encoded = b64.base64_encode(plaintext.data(), plaintext.size());
+    std::cout << "[i] Replace shellcode string in loader with one below:\n" << std::endl;
     printf("shellcode = \"%s\";", encoded.c_str());
 
 }
