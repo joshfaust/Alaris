@@ -1,0 +1,15 @@
+= Alaris Shellcode Loader
+Joshua Faust <Joshua.Faust@sevrosecurity.com>
+:toc:
+
+== Alaris
+
+Alaris is a new and sneaky shellcode loader capable of bypassing most EDR systems as of today (10/14/2020). It uses several known TTP's that help protect the malware and it's execution flow. Some of these features are:
+
+* Shellcode Encryption (AES-CBC 256)
+* Direct x86 Syscalls (Does not use `NtDLL.dll`)
+* Prevents 3rd party (non-Microsoft Signed) DLL's from hooking or injecting both the parent and child processes. 
+* Parent Process ID spoofing
+* Overwrites it's own shellcode after execution. 
+
+To get a full understanding on how Alaris works, see my post here: 
