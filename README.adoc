@@ -13,3 +13,54 @@ Alaris is a new and sneaky shellcode loader capable of bypassing most EDR system
 * Overwrites it's own shellcode after execution. 
 
 To get a full understanding on how Alaris works, see my post here: https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/
+
+== Building Alaris
+
+The easiest method to build Alaris is with `builder.py`. This is a python 3.6+ script that automates the following:
+
+* Dynamic AES Key, IV generation that's unique for each build. Uses PBKDF2 to generate.
+* AES Shellcode Encryption and Encoding from a raw binary shellcode file.
+* Auto-Replacement of Shellcode, Key and IV within Alaris source. 
+* Auto-Compiling of the Alaris source. 
+
+[source, python]
+----
+usage: builder.py [-h] -s  -p  [-o]
+
+optional arguments:
+  -h, --help        show this help message and exit
+  -s, --shellcode   Path to RAW shellcode file
+  -p, --password    Encryption Passphrase
+  -o, --out         Output Path for compiled binary
+----
+
+
+=== Cobalt Strike Example
+
+*Generate x64 Shellcode for you Cobalt Strike Listener*
++++
+<br>
+<p align="center">
+<img src="docs/cobalt_example1.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+
+*Use the `builder.py` to build the loader*
++++
+<br>
+<p align="center">
+<img src="docs/build_example1.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+
+*Executing the loader*
++++
+<br>
+<p align="center">
+<img src="docs/cobalt_example2.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+
