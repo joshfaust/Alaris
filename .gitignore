@@ -4,6 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 test
+.venv
+.vscode
 
 # User-specific files
 *.rsuser
