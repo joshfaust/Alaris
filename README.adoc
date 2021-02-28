@@ -18,7 +18,7 @@ Alaris is a new and sneaky shellcode loader capable of bypassing most EDR system
 * Parent Process ID spoofing
 * Overwrites it's own shellcode after execution. 
 
-To get a full understanding on how Alaris works, see my post here: https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/
+To get a full understanding on how Alaris works, https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/[see my post here].
 
 === Updates
 
@@ -26,6 +26,7 @@ As on February 28th, 2021, several changes have been made:
 
 . You can now easily build Alaris with the Python3 `builder.py` tool.
 . Moved from https://github.com/jthuraisamy/SysWhispers[SysWhispers] to https://github.com/jthuraisamy/SysWhispers2[SysWhispers2]
+. Key and IV are now dynamic for each build via PBKDF2
 
 == Building Alaris
 
