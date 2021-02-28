@@ -4,12 +4,77 @@ Joshua Faust <Joshua.Faust@sevrosecurity.com>
 
 == Alaris
 
-Alaris is a new and sneaky shellcode loader capable of bypassing most EDR systems as of today (10/14/2020). It uses several known TTP's that help protect the malware and it's execution flow. Some of these features are:
++++
+<p align="center">
+<img src="docs/vt_scan.png" alt="Build" width="175%" height="75%"/>
+</p>
++++
+
+Alaris is a new and sneaky shellcode loader capable of bypassing most EDR systems as of today (02/28/2021). It uses several known TTP's that help protect the malware and it's execution flow. Some of these features are:
 
 * Shellcode Encryption (AES-CBC 256)
-* Direct x86 Syscalls (Does not use `NtDLL.dll`)
+* Direct x86 Syscalls via https://twitter.com/Jackson_T[@Jackson T's] new https://github.com/jthuraisamy/SysWhispers2[SyWhispers2]
 * Prevents 3rd party (non-Microsoft Signed) DLL's from hooking or injecting both the parent and child processes. 
 * Parent Process ID spoofing
 * Overwrites it's own shellcode after execution. 
 
-To get a full understanding on how Alaris works, see my post here: https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/
+To get a full understanding on how Alaris works, https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/[see my post here].
+
+=== Updates
+
+As on February 28th, 2021, several changes have been made:
+
+. You can now easily build Alaris with the Python3 `builder.py` tool.
+. Moved from https://github.com/jthuraisamy/SysWhispers[SysWhispers] to https://github.com/jthuraisamy/SysWhispers2[SysWhispers2]
+. Key and IV are now dynamic for each build via PBKDF2
+
+== Building Alaris
+
+The easiest method to build Alaris is with `builder.py`. This is a python 3.6+ script that automates the following:
+
+* Dynamic AES Key, IV generation that's unique for each build. Uses PBKDF2 to generate.
+* AES Shellcode Encryption and Encoding from a raw binary shellcode file.
+* Auto-Replacement of Shellcode, Key and IV within Alaris source. 
+* Auto-Compiling of the Alaris source. 
+
+[source, python]
+----
+usage: builder.py [-h] -s  -p  [-o]
+
+optional arguments:
+  -h, --help        show this help message and exit
+  -s, --shellcode   Path to RAW shellcode file
+  -p, --password    Encryption Passphrase
+  -o, --out         Output Path for compiled binary
+----
+
+
+=== Cobalt Strike Example
+
+*Generate x64 Shellcode for you Cobalt Strike Listener*
++++
+<br>
+<p align="center">
+<img src="docs/cobalt_example1.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+
+*Use the `builder.py` to build the loader*
++++
+<br>
+<p align="center">
+<img src="docs/build_example1.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+
+*Executing the loader*
++++
+<br>
+<p align="center">
+<img src="docs/cobalt_example2.gif" alt="Build" width="100%" height="100%"/>
+</p>
+<br>
++++
+

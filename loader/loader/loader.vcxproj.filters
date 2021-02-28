@@ -24,6 +24,9 @@
     <ClCompile Include="aes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="low.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -48,7 +51,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="low.asm">
+    <MASM Include="lowstubs.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
