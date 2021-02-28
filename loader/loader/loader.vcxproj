@@ -56,6 +56,7 @@
     <ClCompile Include="aes.c" />
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="loader.cpp" />
+    <ClCompile Include="low.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aes.h" />
@@ -68,7 +69,7 @@
     <ResourceCompile Include="loader.rc" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="low.asm">
+    <MASM Include="lowstubs.asm">
       <DeploymentContent>false</DeploymentContent>
       <FileType>MASM</FileType>
     </MASM>

@@ -4,15 +4,28 @@ Joshua Faust <Joshua.Faust@sevrosecurity.com>
 
 == Alaris
 
-Alaris is a new and sneaky shellcode loader capable of bypassing most EDR systems as of today (10/14/2020). It uses several known TTP's that help protect the malware and it's execution flow. Some of these features are:
++++
+<p align="center">
+<img src="docs/vt_scan.png" alt="Build" width="175%" height="75%"/>
+</p>
++++
+
+Alaris is a new and sneaky shellcode loader capable of bypassing most EDR systems as of today (02/28/2021). It uses several known TTP's that help protect the malware and it's execution flow. Some of these features are:
 
 * Shellcode Encryption (AES-CBC 256)
-* Direct x86 Syscalls (Does not use `NtDLL.dll`)
+* Direct x86 Syscalls via https://twitter.com/Jackson_T[@Jackson T's] new https://github.com/jthuraisamy/SysWhispers2[SyWhispers2]
 * Prevents 3rd party (non-Microsoft Signed) DLL's from hooking or injecting both the parent and child processes. 
 * Parent Process ID spoofing
 * Overwrites it's own shellcode after execution. 
 
 To get a full understanding on how Alaris works, see my post here: https://sevrosecurity.com/2020/10/14/alaris-a-protective-loader/
+
+=== Updates
+
+As on February 28th, 2021, several changes have been made:
+
+. You can now easily build Alaris with the Python3 `builder.py` tool.
+. Moved from https://github.com/jthuraisamy/SysWhispers[SysWhispers] to https://github.com/jthuraisamy/SysWhispers2[SysWhispers2]
 
 == Building Alaris
 

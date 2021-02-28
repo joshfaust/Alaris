@@ -6,6 +6,7 @@
 test
 .venv
 .vscode
+loader.exe
 
 # User-specific files
 *.rsuser
