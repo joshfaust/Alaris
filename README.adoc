@@ -37,6 +37,12 @@ The easiest method to build Alaris is with `builder.py`. This is a python 3.6+ s
 * Auto-Replacement of Shellcode, Key and IV within Alaris source. 
 * Auto-Compiling of the Alaris source. 
 
+I assume the following when you're building a new Alaris loader:
+
+. You are compiling on a Windows host. Preferably, Windows 10.
+. You have Visual Studio 2019+ [Community, Professional] installed with C++ (https://github.com/cribdragg3r/Alaris/issues/2#issuecomment-749069975[See example here])
+. You have Python3 installed and have `pip install -r requirements.txt`
+
 [source, python]
 ----
 usage: builder.py [-h] -s  -p  [-o]
