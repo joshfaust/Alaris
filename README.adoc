@@ -48,6 +48,16 @@ optional arguments:
   -o, --out         Output Path for compiled binary
 ----
 
+.Example Syntax
+[source, python]
+----
+# Output Compiled Binary to CWD
+python3 builder.py -s C:\Users\admin\payload.bin -p example_password
+
+# Output Compiled Binary to a path of your choosing.
+python3 builder.py -s C:\Users\admin\payload.bin -p example_password -o C:\Users\admin\Desktop\my_alaris
+----
+
 
 === Cobalt Strike Example
 
