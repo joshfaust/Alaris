@@ -7,6 +7,7 @@ import argparse
 import mimetypes
 import subprocess
 import pbkdf2
+from binaryornot.check import is_binary
 from Crypto.Cipher import AES
 from colorama import Fore, Back, Style
 
@@ -58,10 +59,10 @@ def get_msbuild_path() -> str:
             raise Exception("Cannot Find Visual Studio 2019+ Installation")
         return f"\"{out.decode('utf-8').strip()}\MSBuild\Current\Bin\MSBuild.exe\""
     except KeyError as e:
-        print(f"KeyError: {e}; Error: {err}")
+        print(f"KeyError: {e}; Error: {err.decode()}")
         exit(1)
     except Exception as e:
-        print(f"Generic Error: {e}; Error: {err}")
+        print(f"Generic Error: {e}; Error: {err.decode()}")
         exit(1)
 
 
@@ -76,7 +77,7 @@ def compile() -> bool:
         p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         out, err = p.communicate()
         if p.returncode != 0:
-            raise Exception(err)
+            raise Exception(f"Ouput:{out}; Error:{err}")
         return True
     except Exception as e:
         print(f"Compile Error: {e}")
@@ -121,15 +122,36 @@ def build_c_vars(data: bytes) -> str:
 
 
 def move_binary(path: str) -> str:
+    """
+    Moves the binary to a user defined directory
+    """
     current_location = f"{os.getcwd()}/loader/x64/Release/loader.exe"
+
+    # remove duplicates
     if os.path.exists(f"{path}/loader.exe"):
         os.remove(f"{path}/loader.exe")
-    try:
+
+    if ".exe" in path:
+        exe_path = os.path.dirname(path)
+
+        if os.path.exists(exe_path):
+            shutil.move(current_location, path)
+    else:
         shutil.move(current_location, path)
-    except:
-        path = os.getcwd()
-        shutil.move(current_location, path)
+
     return path
+
+
+def is_max_string(string: str) -> bool:
+    """
+    Checks to make sure the Base64 Shellcode string is not too
+    large. C++ has a max character limit of 4294967294
+    """
+    cpp_max_size = 4294967294
+    if len(string) >= cpp_max_size:
+        print(f"{Fore.RED}[!] Shellcode Too Large, C++ Max String is 4294967294 characters.")
+        return True
+    return False
 
 
 def aes_encrypt(data: bytes, key: bytes, iv: bytes) -> str:
@@ -150,15 +172,16 @@ def parse_shellcode(shellcode_file: str) -> bytes:
     if not os.path.exists(shellcode_file):
         print(f"[!] ERROR: {shellcode_file} does not exist")
         exit(1)
+
     # Check if the file is a binary (RAW) file
-    file_type = mimetypes.guess_type(shellcode_file)[0]
-    if "octet-stream" not in file_type:
-        print(f"[!] ERROR: {shellcode_file} does not look to be a RAW Binary file")
+    if is_binary(shellcode_file):
+        with open(shellcode_file, "rb") as f:
+            data = f.read()
+        return data
+    else:
+        print(f"[!] ERROR: Shellcode not in binary (bin,raw) format")
         exit(1)
 
-    with open(shellcode_file, "rb") as f:
-        data = f.read()
-    return data
 
 
 if __name__ == "__main__":
@@ -207,9 +230,10 @@ if __name__ == "__main__":
 
     c_shellcode = f"shellcode = \"{encrypted_encoded_shellcode}\";"
 
-    if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
-        print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
-        if compile():
-            print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
-            print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}\loader.exe{Fore.RESET}")
+    if not is_max_string(encrypted_encoded_shellcode):
+        if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
+            print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
+            if compile():
+                print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
+                print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}\loader.exe{Fore.RESET}")
 

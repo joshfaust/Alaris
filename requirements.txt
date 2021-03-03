@@ -1,6 +1,8 @@
 appdirs==1.4.4
 astroid==2.4.2
+binaryornot==0.4.4
 black==20.8b1
+chardet==4.0.0
 click==7.1.2
 colorama==0.4.4
 isort==5.6.4
