@@ -136,8 +136,12 @@ def move_binary(path: str) -> str:
 
         if os.path.exists(exe_path):
             shutil.move(current_location, path)
+        else:
+            path = os.getcwd()
+            shutil.move(current_location, path)
     else:
         shutil.move(current_location, path)
+        path = path + "loader.exe"
 
     return path
 
@@ -145,11 +149,12 @@ def move_binary(path: str) -> str:
 def is_max_string(string: str) -> bool:
     """
     Checks to make sure the Base64 Shellcode string is not too
-    large. C++ has a max character limit of 4294967294
+    large. https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/compiler-error-c2026?view=msvc-160&viewFallbackFrom=vs-2019
     """
-    cpp_max_size = 4294967294
+    cpp_max_size = 16380
     if len(string) >= cpp_max_size:
-        print(f"{Fore.RED}[!] Shellcode Too Large, C++ Max String is 4294967294 characters.")
+        print(f"{Fore.RED}[!] Shellcode Too Large, a string can't be longer than 16380 single-byte characters.")
+        print(f"{Fore.CYAN}[i] https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/compiler-error-c2026?view=msvc-160&viewFallbackFrom=vs-2019")
         return True
     return False
 
@@ -235,5 +240,5 @@ if __name__ == "__main__":
             print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
             if compile():
                 print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
-                print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}\loader.exe{Fore.RESET}")
+                print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}{Fore.RESET}")
 
