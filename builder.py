@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import shutil
 import base64
 import binascii
@@ -148,6 +149,17 @@ def move_binary(path: str) -> str:
 
 def is_max_string(string: str) -> bool:
     """
+    The max string size, no matter what, is 65535 bytes, check
+    to see if were' above that
+    """
+    cpp_max_string_size = 65535
+    if sys.getsizeof(string) >= cpp_max_string_size:
+        return True
+    return False
+
+
+def is_max_string_singleline(string: str) -> bool:
+    """
     Checks to make sure the Base64 Shellcode string is not too
     large. https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/compiler-error-c2026?view=msvc-160&viewFallbackFrom=vs-2019
     """
@@ -249,6 +261,13 @@ if __name__ == "__main__":
     c_shellcode = f"shellcode = \"{encrypted_encoded_shellcode}\";"
 
     if is_max_string(encrypted_encoded_shellcode):
+        print(f"{Fore.RED}[!] You shellcode is larger than C++ Max String size of 65535 bytes, this probably wont compile...{Fore.RESET}")
+        print(f"{Fore.RED}[i] https://docs.microsoft.com/en-us/cpp/c-language/maximum-string-length?view=msvc-160{Fore.RESET}")
+        ans = input(f"{Fore.GREEN}Try Anyway? (Y|N): {Fore.RESET}")
+        if ans.lower() == "n" or ans.lower() == "no":
+            exit(1)
+
+    if is_max_string_singleline(encrypted_encoded_shellcode):
         c_shellcode= build_c_shellcode(encrypted_encoded_shellcode)
 
     if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
