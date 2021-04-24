@@ -27,6 +27,9 @@
     <ClCompile Include="low.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="chaff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="low.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chaff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
